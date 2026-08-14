@@ -14,13 +14,13 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    /* Dark Purple Animated Background */
+    /* Blue-Black Animated Background */
     body {
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(-45deg, #090914, #1c103f, #2d1b54, #090914);
+      background: linear-gradient(-45deg, #000814, #021124, #0b2545, #000814);
       background-size: 400% 400%;
       animation: gradientBG 12s ease infinite;
       color: #ffffff;
@@ -35,9 +35,9 @@
 
     /* Glass Container - larger, responsive layout */
     .container {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.03);
       backdrop-filter: blur(15px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(14,165,233,0.08);
       border-radius: 20px;
       padding: 60px 50px;
       max-width: 1000px; /* bigger layout */
@@ -73,8 +73,8 @@
     h1 {
       font-size: 3rem;
       margin-bottom: 10px;
-      /* Neon Pink Gradient Text */
-      background: linear-gradient(90deg, #f472b6, #ec4899);
+      /* Neon Blue Gradient Text */
+      background: linear-gradient(90deg, #60a5fa, #1e3a8a);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       line-height: 1.05;
@@ -97,7 +97,7 @@
       width: 100%;
       padding: 18px;
       border-radius: 12px;
-      border: 2px solid #ec4899;
+      border: 2px solid #1e3a8a;
       background: rgba(0, 0, 0, 0.35);
       color: white;
       font-size: 1.15rem;
@@ -109,7 +109,8 @@
     }
 
     input[type="text"]:focus {
-      box-shadow: 0 0 15px rgba(236, 72, 153, 0.45);
+      box-shadow: 0 0 20px rgba(96,165,250,0.35);
+      border-color: #60a5fa;
     }
 
     /* Buttons */
@@ -128,23 +129,23 @@
     }
 
     .generate-btn {
-      background: linear-gradient(90deg, #ec4899, #be185d);
+      background: linear-gradient(90deg, #60a5fa, #1e3a8a);
       color: white;
     }
 
     .generate-btn:hover {
       transform: translateY(-3px);
-      box-shadow: 0 8px 25px rgba(236, 72, 153, 0.35);
+      box-shadow: 0 8px 25px rgba(96,165,250,0.25);
     }
 
     .download-btn {
-      background: #10b981;
+      background: linear-gradient(90deg, #38bdf8, #0369a1);
       color: white;
       display: none; /* Hidden until QR code is made */
     }
 
     .download-btn:hover {
-      background: #059669;
+      background: linear-gradient(90deg, #7dd3fc, #0284c7);
       transform: translateY(-3px);
     }
 
@@ -167,6 +168,17 @@
       height: auto;
       margin: 0 auto;
       display: block;
+    }
+
+    /* Error styling */
+    .error {
+      color: #ff6b6b;
+      font-weight: 700;
+      font-size: 2rem;
+      padding: 18px 24px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 107, 107, 0.12);
     }
 
     /* Animation helpers for scroll/slide-in */
@@ -236,6 +248,22 @@
     const qrBox = document.getElementById('qr-box');
     const downloadBtn = document.getElementById('downloadBtn');
 
+    function isValidURL(str) {
+      try {
+        const url = new URL(str);
+        return url.protocol === 'http:' || url.protocol === 'https:';
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function showError() {
+      qrBox.innerHTML = '<div class="error">ERROR</div>';
+      qrBox.style.display = 'inline-block';
+      downloadBtn.style.display = 'none';
+      qrBox.classList.add('in-view');
+    }
+
     // Function to generate the QR Code
     generateBtn.addEventListener('click', () => {
       const text = qrInput.value.trim();
@@ -246,22 +274,28 @@
         return;
       }
 
+      // If the input looks like a link (starts with http/https), validate its format
+      const looksLikeLink = text.startsWith('http://') || text.startsWith('https://');
+      if (looksLikeLink && !isValidURL(text)) {
+        showError();
+        return;
+      }
+
       // Clear any old QR code
       qrBox.innerHTML = '';
       qrBox.style.display = 'inline-block';
 
-      // Generate new QR code using the library (bigger size)
+      // Generate new QR code using the library (bigger size) with blue-black dark color
       new QRCode(qrBox, {
         text: text,
         width: 350,
         height: 350,
-        colorDark : "#000000",
+        colorDark : "#021124", // dark blue-black
         colorLight : "#ffffff",
         correctLevel : QRCode.CorrectLevel.H // High error correction
       });
 
       // Show the Download button
-      // small delay so the element exists first
       setTimeout(() => {
         downloadBtn.style.display = 'block';
         // animate the qr-box and download button into view if not already
@@ -269,7 +303,7 @@
         downloadBtn.classList.add('in-view');
       }, 120);
 
-      // If qr-box came into view later, make sure observer triggers for it
+      // Ensure observer will animate qr-box if needed
       try { observer.observe(qrBox); } catch (e) {}
     });
 
